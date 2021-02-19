@@ -51,19 +51,16 @@ X_train_spam, X_test_spam, y_train_spam, y_test_spam = train_test_split(data, ta
 def test_lr(X_train, X_test, y_train, y_test):
     lr = hw2.Logistic_Regression()
     lr.fit(X_train, y_train.reshape(-1,1))
-    
+
     acc = np.mean(lr.predict(X_test) == y_test.reshape(-1,1))
     print('test accuracy (yours) : {:.3f}'.format(acc))
-    
     LR = LogisticRegression(solver='liblinear')
     LR.fit(X_train, y_train)
     
     y_hat = LR.predict(X_test)
     acc_LR = (np.mean(y_hat == y_test))
     print('test accuracy (sklearn package): {:.3f}'.format(acc_LR))
-    
-    
-    
+
 def test_bayes(X_train, X_test, y_train, y_test):
     nb = hw2.Gaussian_Naive_Bayes()
     nb.fit(X_train, y_train)
@@ -83,14 +80,17 @@ def test_bayes(X_train, X_test, y_train, y_test):
 def test_spam(X_train, X_test, y_train, y_test):
     nb = hw2.Spam_Naive_Bayes()
     nb.fit(X_train, y_train)
-    acc = np.mean(nb.predict(X_test).argmax(-1) == y_test)
+    y_test = np.array(y_test)
+    acc = np.mean(nb.predict(X_test) == y_test)
     print('test accuracy (yours) : {:.3f}'.format(acc))
     
     
     
 if __name__ == '__main__':
+    '''
     print(' ######## Test Logistic Regression (Cancer) ######## ')
     test_lr(X_train_cancer, X_test_cancer, y_train_cancer, y_test_cancer)
+    '''
     '''
     print(' ######## Test Gaussian Naive Bayes (Cancer) ######## ')
     test_bayes(X_train_cancer, X_test_cancer, y_train_cancer, y_test_cancer)
@@ -100,6 +100,4 @@ if __name__ == '__main__':
     '''
     print(' ######## Test Naive Bayes (Spam) ######## ')
     test_spam(X_train_spam, X_test_spam, y_train_spam, y_test_spam)
-    
-    
-    
+

@@ -32,7 +32,7 @@ class Logistic_Regression():
         num_train = x.shape[0]
 
         # initialize W
-        if self.W == None:
+        if self.W is None:
             self.W = 0.001 * np.random.randn(dim, 1)
             self.b = 0
 
@@ -45,11 +45,21 @@ class Logistic_Regression():
             ############################################################
             ############################################################
             # BEGIN_YOUR_CODE
-            # Calculate loss and update W, b 
+            # Calculate loss and update W, b
 
-            acc = 0
-            loss = 0
-            pass;
+            z = x_batch.dot(self.W) + self.b
+            y_hat = self.sigmoid(z)
+
+            loss, grad = self.loss(x_batch, y_hat, y_batch)
+
+            self.W = self.W - learning_rate * grad["dW"]
+            self.b = self.b - learning_rate * grad["db"]
+
+            y_pred = self.predict(x_batch)
+
+            acc = np.mean(y_pred == y_batch)
+
+            pass
 
             # END_YOUR_CODE
             ############################################################
@@ -57,6 +67,7 @@ class Logistic_Regression():
 
             if it % 50 == 0:
                 print('iteration %d / %d: accuracy : %f: loss : %f' % (it, iteration, acc, loss))
+                #print(y_pred.transpose())
 
     def predict(self, x):
         """
@@ -74,8 +85,15 @@ class Logistic_Regression():
         # BEGIN_YOUR_CODE
         # Calculate predicted y
 
-        y_pred = 0
-        pass;
+        if x.shape == [64, 30]:
+            y_pred = x.dot(self.W) + self.b
+        else:
+            y_pred = x.dot(self.W)
+
+        y_pred = np.absolute(np.round(y_pred))
+
+
+        pass
 
         # END_YOUR_CODE
         ############################################################
@@ -99,8 +117,17 @@ class Logistic_Regression():
         ############################################################
         # BEGIN_YOUR_CODE
         # Calculate loss and gradient
-        loss = 0
-        pass;
+
+        n = y_pred.shape[0]
+        loss = -np.sum(y_batch * np.log(y_pred + 1e-5)) / n
+
+        dw = loss / (x_batch.transpose().dot(y_batch - y_pred))
+        db = loss / (y_batch - y_pred)
+
+        gradient["dW"] = dw
+        gradient["db"] = db
+
+        pass
 
         # END_YOUR_CODE
         ############################################################
@@ -118,9 +145,10 @@ class Logistic_Regression():
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
-        # Calculate loss and update W 
-        s = 0
-        pass;
+        # Calculate loss and update W
+
+        #z = np.clip(z, -5, 5)
+        s = 1 / (1 + np.exp(-z))
 
         # END_YOUR_CODE
         ############################################################
@@ -238,6 +266,10 @@ class Naive_Bayes():
 
 class Spam_Naive_Bayes(object):
     """Implementation of Naive Bayes for Spam detection."""
+    def __init__(self):
+        self.word_counts = {'spam': {}, 'ham': {}}
+        self.num_messages = {'spam': 0, 'ham': 0}
+        self.class_priors = {'spam': 0.0, 'ham': 0.0}
 
     def clean(self, s):
         translator = str.maketrans("", "", string.punctuation)
@@ -262,8 +294,15 @@ class Spam_Naive_Bayes(object):
         ############################################################
         # BEGIN_YOUR_CODE
         # calculate naive bayes probability of each class of input x
-        word_counts = 0
-        pass
+
+        token = self.tokenize(words[0])
+        word_counts = {}
+        for word in token:
+            if word in word_counts:
+                word_counts[word] = word_counts[word] + 1
+            else:
+                word_counts[word] = 1
+
         # END_YOUR_CODE
         ############################################################
         ############################################################
@@ -289,6 +328,25 @@ class Spam_Naive_Bayes(object):
         ############################################################
         # BEGIN_YOUR_CODE
         # calculate naive bayes probability of each class of input x
+        for x in range(len(X_train)):
+            words = self.tokenize(X_train[x])
+            if y_train[x] == 1:
+                self.num_messages['spam'] = self.num_messages['spam'] + 1
+            else:
+                self.num_messages['ham'] = self.num_messages['ham'] + 1
+
+            for word in words:
+                if word not in self.word_counts['spam']:
+                    self.word_counts['spam'][word] = 0
+                if word not in self.word_counts['ham']:
+                    self.word_counts['ham'][word] = 0
+                if y_train[x] == 1:
+                    self.word_counts['spam'][word] = self.word_counts['spam'][word] + 1
+                else:
+                    self.word_counts['ham'][word] = self.word_counts['ham'][word] + 1
+
+        self.class_priors['spam'] = self.num_messages['spam'] / (self.num_messages['spam'] + self.num_messages['ham'])
+        self.class_priors['ham'] = self.num_messages['ham'] / (self.num_messages['spam'] + self.num_messages['ham'])
 
         pass
         # END_YOUR_CODE
@@ -317,6 +375,23 @@ class Spam_Naive_Bayes(object):
             ############################################################
             # BEGIN_YOUR_CODE
             # calculate naive bayes probability of each class of input x
+
+            p_spam = -1
+            p_ham = -1
+
+            words = self.tokenize(x)
+            for word in words:
+                if p_spam == -1 and word in self.word_counts['spam']:
+                    p_spam = self.word_counts['spam'][word] / self.num_messages['spam']
+                    p_ham = self.word_counts['ham'][word] / self.num_messages['ham']
+                elif word in self.word_counts['spam']:
+                    p_spam = p_spam * (self.word_counts['spam'][word] / self.num_messages['spam'])
+                    p_ham = p_ham * (self.word_counts['ham'][word] / self.num_messages['ham'])
+
+            if p_spam > p_ham:
+                result.append(1)
+            else:
+                result.append(0)
 
             pass
             # END_YOUR_CODE
