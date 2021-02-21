@@ -67,7 +67,6 @@ class Logistic_Regression():
 
             if it % 50 == 0:
                 print('iteration %d / %d: accuracy : %f: loss : %f' % (it, iteration, acc, loss))
-                #print(y_pred.transpose())
 
     def predict(self, x):
         """
@@ -85,13 +84,8 @@ class Logistic_Regression():
         # BEGIN_YOUR_CODE
         # Calculate predicted y
 
-        if x.shape == [64, 30]:
-            y_pred = x.dot(self.W) + self.b
-        else:
-            y_pred = x.dot(self.W)
-
-        y_pred = np.absolute(np.round(y_pred))
-
+        z = x.dot(self.W) + self.b
+        y_pred = np.round(self.sigmoid(z))
 
         pass
 
@@ -118,11 +112,12 @@ class Logistic_Regression():
         # BEGIN_YOUR_CODE
         # Calculate loss and gradient
 
-        n = y_pred.shape[0]
-        loss = -np.sum(y_batch * np.log(y_pred + 1e-5)) / n
+        y_hat = y_pred
+        n = y_hat.shape[0]
+        loss = -np.sum(y_batch * np.log(y_hat + 1e-5)) / n
 
-        dw = loss / (x_batch.transpose().dot(y_batch - y_pred))
-        db = loss / (y_batch - y_pred)
+        dw = 2 * x_batch.transpose().dot(y_hat - y_batch) / n
+        db = np.mean(y_hat - y_batch) / n
 
         gradient["dW"] = dw
         gradient["db"] = db
@@ -147,7 +142,7 @@ class Logistic_Regression():
         # BEGIN_YOUR_CODE
         # Calculate loss and update W
 
-        #z = np.clip(z, -5, 5)
+        z = np.clip(z, -500, 500)
         s = 1 / (1 + np.exp(-z))
 
         # END_YOUR_CODE
