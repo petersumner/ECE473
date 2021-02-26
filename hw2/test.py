@@ -89,13 +89,6 @@ def test_spam(X_train, X_test, y_train, y_test):
 if __name__ == '__main__':
     print(' ######## Test Logistic Regression (Cancer) ######## ')
     test_lr(X_train_cancer, X_test_cancer, y_train_cancer, y_test_cancer)
-    '''
-    print(' ######## Test Gaussian Naive Bayes (Cancer) ######## ')
-    test_bayes(X_train_cancer, X_test_cancer, y_train_cancer, y_test_cancer)
-    
-    print(' ######## Test Gaussian Naive Bayes (Digits) ######## ')
-    test_bayes(X_train_digit, X_test_digit, y_train_digit, y_test_digit)
 
     print(' ######## Test Naive Bayes (Spam) ######## ')
     test_spam(X_train_spam, X_test_spam, y_train_spam, y_test_spam)
-    '''
