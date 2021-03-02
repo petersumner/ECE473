@@ -168,7 +168,7 @@ class Neural_Network():
         num_train = x.shape[0]
 
         # initialize W
-        if self.W1 == None:
+        if self.W1 is None:
             self.W1 = 0.001 * np.random.randn(dim, self.hidden_size)
             self.b1 = 0
 
@@ -187,9 +187,11 @@ class Neural_Network():
             ############################################################
             # BEGIN_YOUR_CODE
             # Update parameters with mini-batch stochastic gradient descent method
-
-            pass;
-
+            self.W1 = self.W1 - learning_rate * gradient["dW1"]
+            self.W2 = self.W2 - learning_rate * gradient["dW2"]
+            self.b1 = self.b1 - learning_rate * gradient["db1"]
+            self.b2 = self.b2 - learning_rate * gradient["db2"]
+            pass
             # END_YOUR_CODE
             ############################################################
             ############################################################
@@ -221,9 +223,11 @@ class Neural_Network():
         ############################################################
         # BEGIN_YOUR_CODE
         # Calculate y_hat which is probability of the instance is y = 0.
-
-        pass;
-
+        g1 = x_batch.dot(self.W1) + self.b1
+        h1 = self.activation(g1)
+        g2 = h1.dot(self.W2) + self.b2
+        y_hat = self.sigmoid(g2)
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
@@ -232,9 +236,14 @@ class Neural_Network():
         ############################################################
         # BEGIN_YOUR_CODE
         # Calculate loss and gradient
+        n = y_hat.shape[0]
+        loss = -np.sum(y_batch * np.log(y_hat + 1e-5)) / n
 
-        pass;
-
+        gradient['dW1'] = x_batch.transpose().dot(y_hat-y_batch)*self.W2.transpose() / (2*n)
+        gradient['db1'] = np.mean((y_hat-y_batch)*self.W2) / n
+        gradient['dW2'] = h1.transpose().dot(y_hat-y_batch) / (2*n)
+        gradient['db2'] = np.mean(y_hat-y_batch) / n
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
@@ -252,8 +261,8 @@ class Neural_Network():
         ############################################################
         # BEGIN_YOUR_CODE
         # Implement ReLU 
-
-        pass;
+        s = np.maximum(0, z)
+        pass
 
         # END_YOUR_CODE
         ############################################################
@@ -272,9 +281,8 @@ class Neural_Network():
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
-
-        pass;
-
+        s = 1 / (1 + np.exp(-z))
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
@@ -296,8 +304,11 @@ class Neural_Network():
         ############################################################
         # BEGIN_YOUR_CODE
         # Calculate predicted y
-
-        pass;
+        g1 = x.dot(self.W1) + self.b1
+        h1 = self.activation(g1)
+        g2 = h1.dot(self.W2) + self.b2
+        y_hat = np.round(self.sigmoid(g2))
+        pass
 
         # END_YOUR_CODE
         ############################################################
