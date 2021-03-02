@@ -2,6 +2,7 @@ import collections
 import math
 import numpy as np
 
+
 class Gaussian_Naive_Bayes():
     def fit(self, X_train, y_train):
         """
@@ -19,10 +20,10 @@ class Gaussian_Naive_Bayes():
         
         """
         self.x = X_train
-        self.y = y_train  
-        
+        self.y = y_train
+
         self.gen_by_class()
-        
+
     def gen_by_class(self):
         """
         With the given input dataset (self.x, self.y), generate 3 dictionaries to calculate class-wise mean and variance of the data.
@@ -35,15 +36,28 @@ class Gaussian_Naive_Bayes():
         self.mean_by_class = dict()
         self.std_by_class = dict()
         self.y_prior = None
-        
+
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
         # Generate dictionaries.
         # hint : to see all unique y labels, you might use np.unique function, e.g., np.unique(self.y)
-
-        pass;
-
+        classes = np.unique(self.y)
+        counts = dict()
+        for c in classes:
+            self.x_by_class[c] = []
+            self.mean_by_class[c] = []
+            self.std_by_class[c] = []
+            counts[c] = 0
+        for i in range(0, self.x.shape[0]):
+            c = self.y[i]
+            self.x_by_class[c].append(self.x[i])
+            counts[c] = counts[c] + 1
+        for c in classes:
+            self.mean_by_class[c] = self.mean(self.x_by_class[c])
+            self.std_by_class[c] = self.std(self.x_by_class[c])
+        self.y_prior = np.array([(counts[c] / len(self.y)) for c in classes])
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################        
@@ -53,35 +67,48 @@ class Gaussian_Naive_Bayes():
         ############################################################
         # BEGIN_YOUR_CODE
         # Calculate mean of input x
-        
-        pass;
-    
+        total = 0
+        for i in x:
+            total += i
+        mean = total / len(x)
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
         return mean
-    
+
     def std(self, x):
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
         # Calculate standard deviation of input x, do not use np.std
-        pass;
+        mean = self.mean(x)
+        var = sum([(n-mean)**2 for n in x]) / (len(x)-1)
+        std = [math.sqrt(n) for n in var]
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
-        return std
-    
+        return np.array(std)
+
     def calc_gaussian_dist(self, x, mean, std):
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
         # calculate gaussian probability of input x given mean and std
-        pass;
+        for i in range(len(std)):
+            if std[i] == 0:
+                std[i] = 1e-5
+        dist = np.exp(-((x-mean)**2 / (2*std**2))) / (math.sqrt(2*math.pi)*std)
+        for i in range(len(dist)):
+            if dist[i] == 0:
+                dist[i] = 1e-5
+        return dist
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
-        
+
     def predict(self, x):
         """
         Use the acquired mean and std for each class to predict class for input x.
@@ -90,36 +117,37 @@ class Gaussian_Naive_Bayes():
         Returns:
         - prediction: Predicted labels for the data in x. prediction is (N, C) dimensional array, for N samples and C classes.
         """
-            
+
         n = len(x)
         num_class = len(np.unique(self.y))
         prediction = np.zeros((n, num_class))
-        
+
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
         # calculate naive bayes probability of each class of input x
-        
-        pass;
-    
+        for arr in range(n):
+            for c in range(num_class):
+                prediction[arr][c] = self.y_prior[c] + np.sum(np.log(self.calc_gaussian_dist(x[arr], self.mean_by_class[c], self.std_by_class[c])))
+        pass
         # END_YOUR_CODE
         ############################################################
         ############################################################
-        
+
         return prediction
 
 
 class Neural_Network():
-    def __init__(self, hidden_size = 64, output_size = 1):
+    def __init__(self, hidden_size=64, output_size=1):
         self.W1 = None
         self.b1 = None
         self.W2 = None
-        self.b2 = None    
-        
+        self.b2 = None
+
         self.hidden_size = hidden_size
         self.output_size = output_size
-        
-    def fit(self, x, y, batch_size = 64, iteration = 2000, learning_rate = 1e-3):
+
+    def fit(self, x, y, batch_size=64, iteration=2000, learning_rate=1e-3):
         """
         Train this 2 layered neural network classifier using mini-batch stochastic gradient descent.
         Inputs:
@@ -135,25 +163,24 @@ class Neural_Network():
 
         Returns:
         None
-        """  
+        """
         dim = x.shape[1]
         num_train = x.shape[0]
 
-        #initialize W
+        # initialize W
         if self.W1 == None:
             self.W1 = 0.001 * np.random.randn(dim, self.hidden_size)
             self.b1 = 0
-            
+
             self.W2 = 0.001 * np.random.randn(self.hidden_size, self.output_size)
             self.b2 = 0
-
 
         for it in range(iteration):
             batch_ind = np.random.choice(num_train, batch_size)
 
             x_batch = x[batch_ind]
             y_batch = y[batch_ind]
-            
+
             loss, gradient = self.loss(x_batch, y_batch)
 
             ############################################################
@@ -162,19 +189,19 @@ class Neural_Network():
             # Update parameters with mini-batch stochastic gradient descent method
 
             pass;
-        
+
             # END_YOUR_CODE
             ############################################################
             ############################################################
-            
+
             y_pred = self.predict(x_batch)
             acc = np.mean(y_pred == y_batch)
-            
+
             if it % 50 == 0:
                 print('iteration %d / %d: accuracy : %f: loss : %f' % (it, iteration, acc, loss))
-                
-    def loss(self, x_batch, y_batch, reg = 1e-3):
-            """
+
+    def loss(self, x_batch, y_batch, reg=1e-3):
+        """
             Implement feed-forward computation to calculate the loss function.
             And then compute corresponding back-propagation to get the derivatives. 
 
@@ -188,32 +215,30 @@ class Neural_Network():
             - loss as a single float
             - gradient dictionary with four keys : 'dW1', 'db1', 'dW2', and 'db2'
             """
-            gradient = {'dW1' : None, 'db1' : None, 'dW2' : None, 'db2' : None}
+        gradient = {'dW1': None, 'db1': None, 'dW2': None, 'db2': None}
 
+        ############################################################
+        ############################################################
+        # BEGIN_YOUR_CODE
+        # Calculate y_hat which is probability of the instance is y = 0.
 
-            ############################################################
-            ############################################################
-            # BEGIN_YOUR_CODE
-            # Calculate y_hat which is probability of the instance is y = 0.
+        pass;
 
-            pass;
+        # END_YOUR_CODE
+        ############################################################
+        ############################################################
 
-            # END_YOUR_CODE
-            ############################################################
-            ############################################################
+        ############################################################
+        ############################################################
+        # BEGIN_YOUR_CODE
+        # Calculate loss and gradient
 
+        pass;
 
-            ############################################################
-            ############################################################
-            # BEGIN_YOUR_CODE
-            # Calculate loss and gradient
-
-            pass;
-
-            # END_YOUR_CODE
-            ############################################################
-            ############################################################
-            return loss, gradient
+        # END_YOUR_CODE
+        ############################################################
+        ############################################################
+        return loss, gradient
 
     def activation(self, z):
         """
@@ -222,20 +247,20 @@ class Neural_Network():
         z : A scalar or numpy array of any size.
         Return:
         s : output of ReLU(z)
-        """ 
+        """
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
         # Implement ReLU 
-        
+
         pass;
-    
+
         # END_YOUR_CODE
         ############################################################
         ############################################################
-        
+
         return s
-        
+
     def sigmoid(self, z):
         """
         Compute the sigmoid of z
@@ -243,7 +268,7 @@ class Neural_Network():
         z : A scalar or numpy array of any size.
         Return:
         s : sigmoid of input
-        """ 
+        """
         ############################################################
         ############################################################
         # BEGIN_YOUR_CODE
@@ -253,9 +278,9 @@ class Neural_Network():
         # END_YOUR_CODE
         ############################################################
         ############################################################
-        
+
         return s
-    
+
     def predict(self, x):
         """
         Use the trained weights of this linear classifier to predict labels for
@@ -278,5 +303,3 @@ class Neural_Network():
         ############################################################
         ############################################################
         return y_hat
-
-    

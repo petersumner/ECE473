@@ -5,7 +5,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.datasets import make_blobs
 
-import hw3_submission_sol as hw3
+import hw3_submission as hw3
 
 import numpy as np
 import os
@@ -42,7 +42,8 @@ def test_bayes(X_train, X_test, y_train, y_test):
     
     acc = np.mean(nb.predict(X_test).argmax(-1) == y_test)
     print('test accuracy (yours) : {:.3f}'.format(acc))
-    
+    #print(nb.predict(X_test))
+    #print(nb.predict(X_test).argmax(-1))
     model = GaussianNB()
     model.fit(X_train, y_train)
     y_hat = model.predict(X_test)
@@ -53,14 +54,15 @@ def test_bayes(X_train, X_test, y_train, y_test):
     
     
 if __name__ == '__main__':
+
     print(' ######## Test Neural Network (Cancer) ######## ')
     test_nn(X_train_cancer, X_test_cancer, y_train_cancer, y_test_cancer)
-    
+    '''
     print(' ######## Test Gaussian Naive Bayes (Cancer) ######## ')
     test_bayes(X_train_cancer, X_test_cancer, y_train_cancer, y_test_cancer)
-    
+
     print(' ######## Test Gaussian Naive Bayes (Digits) ######## ')
     test_bayes(X_train_digit, X_test_digit, y_train_digit, y_test_digit)
-
+    '''
     
     
