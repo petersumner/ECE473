@@ -12,17 +12,22 @@ class SegmentationProblem(util.SearchProblem):
 
     def start(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return 0
         # END_YOUR_CODE
 
     def goalp(self, state):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        return state == len(self.query)
         # END_YOUR_CODE
 
     def expand(self, state):
         # BEGIN_YOUR_CODE (our solution is 5 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        results = []
+        for i in range(state, len(self.query)+1):
+            new = self.query[state:i]
+            results.append((new, state+len(new), self.unigramCost(new)))
+            #print(self.query[state:i], state+i, self.unigramCost(self.query[state:i]))
+        return results
         # END_YOUR_CODE
 
 def segmentWords(query, unigramCost):
@@ -33,7 +38,7 @@ def segmentWords(query, unigramCost):
     ucs.solve(SegmentationProblem(query, unigramCost))
 
     # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-    raise Exception("Not implemented yet")
+    return ''.join([c+' ' for c in ucs.actions])
     # END_YOUR_CODE
 
 ############################################################
