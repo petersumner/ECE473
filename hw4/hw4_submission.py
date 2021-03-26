@@ -38,7 +38,7 @@ def segmentWords(query, unigramCost):
     ucs.solve(SegmentationProblem(query, unigramCost))
 
     # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-    return ''.join([c+' ' for c in ucs.actions])
+    return ' '.join([c for c in ucs.actions])
     # END_YOUR_CODE
 
 ############################################################
@@ -67,15 +67,19 @@ class VowelInsertionProblem(util.SearchProblem):
             if state == 0:
                 w1 = wordsegUtil.SENTENCE_BEGIN
             for w2 in self.possibleFills(self.queryWords[state]):
-                results.append((w2, state+1, self.bigramCost(w1, w2)))
+                if (w2, state+1, self.bigramCost(w1, w2)) not in results:
+                    results.append((w2, state+1, self.bigramCost(w1, w2)))
         return results
         # END_YOUR_CODE
 
 def insertVowels(queryWords, bigramCost, possibleFills):
     # BEGIN_YOUR_CODE (our solution is 3 lines of code, but don't worry if you deviate from this)
-    ucs = util.UniformCostSearch(verbose=3)
+    for word in queryWords:
+        if not str.isalpha(word):
+            return ' '.join(queryWords)
+    ucs = util.UniformCostSearch(verbose=0)
     ucs.solve(VowelInsertionProblem(queryWords, bigramCost, possibleFills))
-    return ' '.join([c+' ' for c in ucs.actions])
+    return ' '.join([c for c in ucs.actions])
     # END_YOUR_CODE
 
 
