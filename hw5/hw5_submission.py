@@ -11,13 +11,13 @@ class CounterexampleMDP(util.MDP):
     # Return a value of any type capturing the start state of the MDP.
     def startState(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise NotImplementedError
+        return 0
         # END_YOUR_CODE
 
     # Return a list of strings representing actions possible from |state|.
     def actions(self, state):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise NotImplementedError
+        return [-1, 1]
         # END_YOUR_CODE
 
     # Given a |state| and |action|, return a list of (newState, prob, reward) tuples
@@ -25,13 +25,13 @@ class CounterexampleMDP(util.MDP):
     # Remember that if |state| is an end state, you should return an empty list [].
     def succAndProbReward(self, state, action):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise NotImplementedError
+        return [(state, 0.75, 0), (min(max(state + action, -1), 1), 0.25, state)]
         # END_YOUR_CODE
 
     # Set the discount factor (float or integer) for your counterexample MDP.
     def discount(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        raise NotImplementedError
+        return 0.5
         # END_YOUR_CODE
 
 ############################################################
@@ -79,7 +79,7 @@ class BlackjackMDP(util.MDP):
     #   don't include that state in the list returned by succAndProbReward.
     def succAndProbReward(self, state, action):
         # BEGIN_YOUR_CODE (our solution is 37 lines of code, but don't worry if you deviate from this)
-        raise NotImplementedError
+        return []
         # END_YOUR_CODE
 
     def discount(self):
@@ -94,7 +94,7 @@ def peekingMDP():
     optimal action at least 10% of the time.
     """
     # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-    raise NotImplementedError
+    return BlackjackMDP([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 4, 21, 2)
     # END_YOUR_CODE
 
 ############################################################
