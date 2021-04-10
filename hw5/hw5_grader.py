@@ -97,8 +97,8 @@ def test2b():
     f = len([a for a in list(vi.pi.values()) if a == 'Peek']) / float(len(list(vi.pi.values())))
     grader.requireIsGreaterThan(.1, f)
     # Feel free to uncomment these lines if you'd like to print out states/actions
-    # for k, v in vi.pi.iteritems():
-    #     print k, v
+    #for k, v in vi.pi.items():
+    #    print(k, v)
 grader.addBasicPart('2b-basic', test2b, 4, description="Test for peekingMDP().  Ensure that in at least 10% of states, the optimal policy is to peek.")
 
 ############################################################

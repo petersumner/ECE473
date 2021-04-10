@@ -11,7 +11,7 @@ class CounterexampleMDP(util.MDP):
     # Return a value of any type capturing the start state of the MDP.
     def startState(self):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        return 0
+        return 1
         # END_YOUR_CODE
 
     # Return a list of strings representing actions possible from |state|.
@@ -25,7 +25,7 @@ class CounterexampleMDP(util.MDP):
     # Remember that if |state| is an end state, you should return an empty list [].
     def succAndProbReward(self, state, action):
         # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-        return [(state, 0.75, 0), (min(max(state + action, -1), 1), 0.25, state)]
+        return [(state, 0.99, 0), (min(max(state + action, -1), 1), 0.01, state)]
         # END_YOUR_CODE
 
     # Set the discount factor (float or integer) for your counterexample MDP.
@@ -79,7 +79,36 @@ class BlackjackMDP(util.MDP):
     #   don't include that state in the list returned by succAndProbReward.
     def succAndProbReward(self, state, action):
         # BEGIN_YOUR_CODE (our solution is 37 lines of code, but don't worry if you deviate from this)
-        return []
+        tups = []
+        total, nextPeek, deck = state
+        if action == 'Quit':
+            if deck is None:
+                return tups
+            tups.append(((0, None, None), 1, 0))
+        elif action == 'Take':
+            if total > self.threshold:
+                return tups
+            for value in self.cardValues:
+                if deck is None or value + total > self.threshold:
+                    tups.append(((value + total, None, None), 1/len(self.cardValues), 0))
+                else:
+                    options = sum(i > 0 for i in deck)
+                    cardsLeft = [i for i in deck]
+                    cardsLeft[self.cardValues.index(value)] = cardsLeft[self.cardValues.index(value)] - 1
+                    if all([c == 0 for c in cardsLeft]):
+                        tups.append(((value + total, None, None), 1, total + value))
+                        return tups
+                    else:
+                        cardsLeft = tuple(cardsLeft)
+                        tups.append(((value + total, None, cardsLeft), 1/options, 0))
+        elif action == 'Peek':
+            if deck is None:
+                return []
+            prevValue = 0
+            for value in self.cardValues:
+                tups.append(((total, prevValue, deck), 1/len(self.cardValues), -self.peekCost))
+                prevValue = value
+        return tups
         # END_YOUR_CODE
 
     def discount(self):
@@ -94,7 +123,7 @@ def peekingMDP():
     optimal action at least 10% of the time.
     """
     # BEGIN_YOUR_CODE (our solution is 1 line of code, but don't worry if you deviate from this)
-    return BlackjackMDP([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 4, 21, 2)
+    return BlackjackMDP([1, 2, 3, 14, 21], 25, 20, 1)
     # END_YOUR_CODE
 
 ############################################################
@@ -142,7 +171,12 @@ class QLearningAlgorithm(util.RLAlgorithm):
     # self.getQ() to compute the current estimate of the parameters.
     def incorporateFeedback(self, state, action, reward, newState):
         # BEGIN_YOUR_CODE (our solution is 8 lines of code, but don't worry if you deviate from this)
-        raise NotImplementedError
+        for f, v in self.featureExtractor(state, action).items():
+            maxAction = max((self.getQ(newState, action), action) for action in self.actions(newState))[1]
+            qest = self.getQ(newState, maxAction)
+            pred = self.getQ(state, action)
+            target = reward + self.discount * qest
+            self.weights[state, action] = self.weights[state, action] - self.getStepSize() * (pred - target)
         # END_YOUR_CODE
 
 # Return a single-element dict containing a binary (indicator) feature
@@ -185,7 +219,9 @@ def blackjackFeatureExtractor(state, action):
     total, nextCard, counts = state
 
     # BEGIN_YOUR_CODE (our solution is 7 lines of code, but don't worry if you deviate from this)
-    raise NotImplementedError
+    if counts:  # deck is not None
+        return {(state, action): 1}
+    return {(state, action): 0}
     # END_YOUR_CODE
 
 ############################################################
