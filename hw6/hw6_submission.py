@@ -164,7 +164,32 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_CODE (our solution is 17 lines of code, but don't worry if you deviate from this)
-    raise Exception('Not implemented yet')
+    def miniMax(state, index, depth):
+      if depth == 1 or len(state.getLegalActions(index)) == 0:
+        return scoreEvaluationFunction(state), None
+      actions = state.getLegalActions(index)
+      choices = []
+      if index == 0:
+        maximum = -5000
+        for action in actions:
+          value = miniMax(state.generatePacmanSuccessor(action), state.getNumAgents() - 1, depth - 1)[0]
+          if value > maximum:
+            choices = [action]
+            maximum = value
+          elif value == maximum:
+            choices.append(action)
+        return maximum, random.choice(choices)
+      else:
+        minimum = 5000
+        for action in actions:
+          value = miniMax(state.generateSuccessor(index, action), index - 1, depth - 1)[0]
+          if value < minimum:
+            choices = [action]
+            minimum = value
+          elif value == minimum:
+            choices.append(action)
+        return minimum, random.choice(choices)
+    return miniMax(gameState, 0, self.depth * gameState.getNumAgents() + 1)[1]
     # END_YOUR_CODE
 
 ######################################################################################
