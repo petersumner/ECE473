@@ -257,7 +257,29 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
 
     # BEGIN_YOUR_CODE (our solution is 17 lines of code, but don't worry if you deviate from this)
-    raise Exception('Not implemented yet')
+    def expectiMax(state, index, depth):
+      if depth == 1 or len(state.getLegalActions(index)) == 0:
+        return scoreEvaluationFunction(state), Directions.STOP
+      actions = state.getLegalActions(index)
+      choices = []
+      if index == 0:
+        maximum = -5000
+        for action in actions:
+          value = expectiMax(state.generatePacmanSuccessor(action), gameState.getNumAgents() - 1, depth - 1)[0]
+          if value > maximum:
+            choices = [action]
+            maximum = value
+          elif value == maximum:
+            choices.append(action)
+        return maximum, random.choice(choices)
+      else:
+        value = 0
+        i = 0
+        for action in actions:
+          value = value + expectiMax(state.generateSuccessor(index, action), index - 1, depth - 1)[0]
+          i = i + 1
+        return value/i, random.choice(actions)
+    return expectiMax(gameState, 0, self.depth * gameState.getNumAgents() + 1)[1]
     # END_YOUR_CODE
 
 ######################################################################################
@@ -271,7 +293,7 @@ def betterEvaluationFunction(currentGameState):
     """
 
     # BEGIN_YOUR_CODE (our solution is 17 lines of code, but don't worry if you deviate from this)
-    raise Exception('Not implemented yet')
+    return None, None
     # END_YOUR_CODE
 
 # Abbreviation
